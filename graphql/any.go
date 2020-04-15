@@ -1,13 +1,16 @@
 package graphql
 
 import (
-	"encoding/json"
 	"io"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 func MarshalAny(v interface{}) Marshaler {
 	return WriterFunc(func(w io.Writer) {
-		err := json.NewEncoder(w).Encode(v)
+		jsonI := jsoniter.ConfigCompatibleWithStandardLibrary
+
+		err := jsonI.NewEncoder(w).Encode(v)
 		if err != nil {
 			panic(err)
 		}

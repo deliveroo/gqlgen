@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	jsoniter "github.com/json-iterator/go"
+
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -95,7 +97,8 @@ func (p *Client) RawPost(query string, options ...Option) (*Response, error) {
 	// decode it into map string first, let mapstructure do the final decode
 	// because it can be much stricter about unknown fields.
 	respDataRaw := &Response{}
-	err = json.Unmarshal(w.Body.Bytes(), &respDataRaw)
+	jsonI := jsoniter.ConfigCompatibleWithStandardLibrary
+	err = jsonI.Unmarshal(w.Body.Bytes(), &respDataRaw)
 	if err != nil {
 		return nil, fmt.Errorf("decode: %s", err.Error())
 	}
@@ -121,7 +124,8 @@ func (p *Client) newRequest(query string, options ...Option) (*http.Request, err
 
 	switch bd.HTTP.Header.Get("Content-Type") {
 	case "application/json":
-		requestBody, err := json.Marshal(bd)
+		jsonI := jsoniter.ConfigCompatibleWithStandardLibrary
+		requestBody, err := jsonI.Marshal(bd)
 		if err != nil {
 			return nil, fmt.Errorf("encode: %s", err.Error())
 		}

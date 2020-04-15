@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -20,6 +19,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/gorilla/websocket"
 	lru "github.com/hashicorp/golang-lru"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/vektah/gqlparser/ast"
 	"github.com/vektah/gqlparser/gqlerror"
 	"github.com/vektah/gqlparser/parser"
@@ -552,15 +552,17 @@ func (gh *graphqlHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		gh.cfg.apqCache.Add(ctx, queryHash, reqParams.Query)
 	}
 
+	jsonI := jsoniter.ConfigCompatibleWithStandardLibrary
+
 	switch op.Operation {
 	case ast.Query:
-		b, err := json.Marshal(gh.exec.Query(ctx, op))
+		b, err := jsonI.Marshal(gh.exec.Query(ctx, op))
 		if err != nil {
 			panic(err)
 		}
 		w.Write(b)
 	case ast.Mutation:
-		b, err := json.Marshal(gh.exec.Mutation(ctx, op))
+		b, err := jsonI.Marshal(gh.exec.Mutation(ctx, op))
 		if err != nil {
 			panic(err)
 		}
@@ -628,14 +630,17 @@ func (gh *graphqlHandler) validateOperation(ctx context.Context, args *validateO
 }
 
 func jsonDecode(r io.Reader, val interface{}) error {
-	dec := json.NewDecoder(r)
+	jsonI := jsoniter.ConfigCompatibleWithStandardLibrary
+	dec := jsonI.NewDecoder(r)
 	dec.UseNumber()
 	return dec.Decode(val)
 }
 
 func sendError(w http.ResponseWriter, code int, errors ...*gqlerror.Error) {
 	w.WriteHeader(code)
-	b, err := json.Marshal(&graphql.Response{Errors: errors})
+	jsonI := jsoniter.ConfigCompatibleWithStandardLibrary
+
+	b, err := jsonI.Marshal(&graphql.Response{Errors: errors})
 	if err != nil {
 		panic(err)
 	}
@@ -684,7 +689,8 @@ func processMultipart(w http.ResponseWriter, r *http.Request, request *params, c
 	}
 
 	var uploadsMap = map[string][]string{}
-	if err = json.Unmarshal([]byte(r.Form.Get("map")), &uploadsMap); err != nil {
+	jsonI := jsoniter.ConfigCompatibleWithStandardLibrary
+	if err = jsonI.Unmarshal([]byte(r.Form.Get("map")), &uploadsMap); err != nil {
 		return errors.New("map form field could not be decoded")
 	}
 

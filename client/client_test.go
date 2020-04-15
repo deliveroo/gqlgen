@@ -1,12 +1,12 @@
 package client_test
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"testing"
 
 	"github.com/99designs/gqlgen/client"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/stretchr/testify/require"
 )
 
@@ -18,7 +18,9 @@ func TestClient(t *testing.T) {
 		}
 		require.Equal(t, `{"query":"user(id:$id){name}","variables":{"id":1}}`, string(b))
 
-		err = json.NewEncoder(w).Encode(map[string]interface{}{
+		jsonI := jsoniter.ConfigCompatibleWithStandardLibrary
+
+		err = jsonI.NewEncoder(w).Encode(map[string]interface{}{
 			"data": map[string]interface{}{
 				"name": "bob",
 			},

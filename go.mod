@@ -3,13 +3,13 @@ module github.com/99designs/gqlgen
 go 1.12
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-chi/chi v3.3.2+incompatible
 	github.com/gogo/protobuf v1.0.0 // indirect
 	github.com/gorilla/context v0.0.0-20160226214623-1ea25387ff6f // indirect
 	github.com/gorilla/mux v1.6.1 // indirect
 	github.com/gorilla/websocket v1.2.0
 	github.com/hashicorp/golang-lru v0.5.0
+	github.com/json-iterator/go v1.1.9
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mitchellh/mapstructure v0.0.0-20180203102830-a4e142e9c047
 	github.com/opentracing/basictracer-go v1.0.0 // indirect

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/websocket"
+	jsoniter "github.com/json-iterator/go"
 )
 
 const (
@@ -71,7 +72,8 @@ func (p *Client) WebsocketWithPayload(query string, initPayload map[string]inter
 
 	initMessage := operationMessage{Type: connectionInitMsg}
 	if initPayload != nil {
-		initMessage.Payload, err = json.Marshal(initPayload)
+		jsonI := jsoniter.ConfigCompatibleWithStandardLibrary
+		initMessage.Payload, err = jsonI.Marshal(initPayload)
 		if err != nil {
 			return errorSubscription(fmt.Errorf("parse payload: %s", err.Error()))
 		}
@@ -123,7 +125,9 @@ func (p *Client) WebsocketWithPayload(query string, initPayload map[string]inter
 			}
 
 			var respDataRaw Response
-			err = json.Unmarshal(op.Payload, &respDataRaw)
+			jsonI := jsoniter.ConfigCompatibleWithStandardLibrary
+
+			err = jsonI.Unmarshal(op.Payload, &respDataRaw)
 			if err != nil {
 				return fmt.Errorf("decode: %s", err.Error())
 			}
